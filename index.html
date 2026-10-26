@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="assets/fa/css/all.min.css">
+<link rel="icon" type="image/webp" href="icon.webp">
+<title>Dashboard · Student Attendance Monitor</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1c2333; --muted:#6b768c; --line:#e6eaf2;
+    --blue:#2563eb; --blue-dark:#1e40af; --green:#16a34a; --green-bg:#dcfce7;
+    --orange:#d97706; --orange-bg:#fef3c7; --red:#dc2626; --red-bg:#fee2e2;
+    --sidebar:#101828; --sidebar-ink:#cbd5e1;
+  }
+  body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+  a{text-decoration:none;color:inherit}
+
+  /* Sidebar */
+  .sidebar{width:240px;background:var(--sidebar);color:var(--sidebar-ink);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:20;transition:transform .25s}
+  .brand{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .brand-badge{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .brand h1{font-size:15px;color:#fff;line-height:1.2}
+  .brand small{font-size:11px;color:#94a3b8}
+  .nav{padding:14px 10px;display:flex;flex-direction:column;gap:4px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;font-size:14px;color:var(--sidebar-ink)}
+  .nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav a.active{background:var(--blue);color:#fff;font-weight:600}
+  .nav .ico{width:20px;text-align:center}
+  .sidebar-foot{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:#94a3b8}
+
+  /* Main */
+  .main{flex:1;margin-left:240px;padding:22px;min-width:0}
+  .topbar{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .topbar h2{font-size:22px}
+  .topbar .date{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:220px}
+  .search input{border:none;outline:none;font-size:14px;width:100%;background:transparent;color:var(--ink)}
+  .teacher{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 12px 7px 8px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .teacher b{font-size:13px;display:block;line-height:1.1}
+  .teacher small{font-size:11px;color:var(--muted)}
+  .burger{display:none;background:var(--card);border:1px solid var(--line);border-radius:10px;width:40px;height:40px;font-size:18px;cursor:pointer}
+
+  /* Stat cards */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;gap:14px;align-items:center}
+  .card .ic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 48px}
+  .ic.blue{background:#dbeafe}.ic.green{background:var(--green-bg)}.ic.orange{background:var(--orange-bg)}.ic.red{background:var(--red-bg)}
+  .card small{color:var(--muted);font-size:12px;display:block}
+  .card b{font-size:26px;line-height:1.1}
+  .card .sub{font-size:11px;color:var(--muted)}
+
+  /* Panels */
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .panel h3{font-size:15px;margin-bottom:4px}
+  .panel .hint{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .chart{display:flex;align-items:flex-end;gap:14px;height:180px;padding-top:8px}
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+  .bar .fill{width:70%;max-width:44px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#3b82f6,#2563eb);position:relative;transition:height .6s}
+  .bar .fill span{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--blue-dark);white-space:nowrap}
+  .bar label{font-size:11px;color:var(--muted)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding:8px 6px;border-bottom:1px solid var(--line)}
+  td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .stu{display:flex;align-items:center;gap:10px}
+  .stu .avatar{width:32px;height:32px;font-size:11px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+  .b-present{background:var(--green-bg);color:var(--green)}
+  .b-late{background:var(--orange-bg);color:var(--orange)}
+  .b-absent{background:var(--red-bg);color:var(--red)}
+  .rate{text-align:center;padding:8px 0 2px}
+  .rate .big{font-size:44px;font-weight:800;color:var(--blue-dark)}
+  .rate small{color:var(--muted);font-size:12px}
+  .legend{display:flex;justify-content:center;gap:16px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+
+  @media (max-width:1020px){ .cards{grid-template-columns:repeat(2,1fr)} .grid{grid-template-columns:1fr} }
+  @media (max-width:760px){
+    .sidebar{transform:translateX(-100%)} .sidebar.open{transform:none}
+    .main{margin-left:0;padding:16px} .burger{display:block}
+    .cards{grid-template-columns:1fr 1fr} .search{min-width:0;flex:1}
+  }
+  .nav .ico i{font-size:14px} .brand-badge i{font-size:18px;color:#fff} .ic i{font-size:20px} .search i{font-size:13px;color:var(--muted)} .icon-btn i{margin-right:4px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-badge"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div>
+      <h1>Attendance Monitor</h1>
+      <small>Student Monitoring System</small>
+    </div>
+  </div>
+  <nav class="nav">
+    <a href="index.html" class="active"><span class="ico"><i class="fa-solid fa-gauge"></i></span> Dashboard</a>
+    <a href="students.html"><span class="ico"><i class="fa-solid fa-user-graduate"></i></span> Students</a>
+    <a href="attendance.html"><span class="ico"><i class="fa-solid fa-clipboard-check"></i></span> Attendance</a>
+    <a href="#"><span class="ico"><i class="fa-solid fa-file-lines"></i></span> Reports</a>
+    <a href="#"><span class="ico"><i class="fa-solid fa-gear"></i></span> Settings</a>
+    <a href="#"><span class="ico"><i class="fa-solid fa-right-from-bracket"></i></span> Logout</a>
+  </nav>
+  <div class="sidebar-foot">School Year 2026–2027<br>First Semester</div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <button class="burger" id="burger" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    <div>
+      <h2>Dashboard</h2>
+      <div class="date" id="today">Today</div>
+    </div>
+    <div class="spacer"></div>
+    <label class="search"><i class="fa-solid fa-magnifying-glass"></i> <input type="text" id="search" placeholder="Search student..."></label>
+    <div class="teacher">
+      <div class="avatar">T</div>
+      <div><b>Teacher</b><small>Administrator</small></div>
+    </div>
+  </div>
+
+  <section class="cards">
+    <div class="card"><div class="ic blue"><i class="fa-solid fa-user-graduate"></i></div><div><small>Total Students</small><b>48</b><div class="sub">BSIT 1-A</div></div></div>
+    <div class="card"><div class="ic green"><i class="fa-solid fa-check"></i></div><div><small>Present Today</small><b>41</b><div class="sub">85% of class</div></div></div>
+    <div class="card"><div class="ic orange"><i class="fa-solid fa-clock"></i></div><div><small>Late</small><b>4</b><div class="sub">Arrived after 7:30 AM</div></div></div>
+    <div class="card"><div class="ic red"><i class="fa-solid fa-xmark"></i></div><div><small>Absent</small><b>3</b><div class="sub">No record today</div></div></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h3>Today's Attendance</h3>
+      <div class="hint">Friday · Subject: Computer Fundamentals</div>
+      <table>
+        <thead><tr><th>Student</th><th>Section</th><th>Time In</th><th>Status</th></tr></thead>
+        <tbody id="rows">
+          <tr><td><div class="stu"><div class="avatar">JR</div>Juan Dela Rosa</div></td><td>BSIT 1-A</td><td>7:12 AM</td><td><span class="badge b-present">Present</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">MS</div>Maria Santos</div></td><td>BSIT 1-A</td><td>7:05 AM</td><td><span class="badge b-present">Present</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">JD</div>Jose Dela Cruz</div></td><td>BSIT 1-A</td><td>7:41 AM</td><td><span class="badge b-late">Late</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">AR</div>Ana Reyes</div></td><td>BSIT 1-A</td><td>7:18 AM</td><td><span class="badge b-present">Present</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">MG</div>Mark Garcia</div></td><td>BSIT 1-A</td><td>—</td><td><span class="badge b-absent">Absent</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">KL</div>Kristine Lopez</div></td><td>BSIT 1-A</td><td>7:26 AM</td><td><span class="badge b-present">Present</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">RB</div>Ramon Bautista</div></td><td>BSIT 1-A</td><td>7:52 AM</td><td><span class="badge b-late">Late</span></td></tr>
+          <tr><td><div class="stu"><div class="avatar">JT</div>Jenny Torres</div></td><td>BSIT 1-A</td><td>7:09 AM</td><td><span class="badge b-present">Present</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:16px">
+        <h3>Attendance Rate</h3>
+        <div class="hint">Today's overall rate</div>
+        <div class="rate"><div class="big">85%</div><small>41 of 48 students present</small></div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--green)"></span>Present 41</span>
+          <span><span class="dot" style="background:var(--orange)"></span>Late 4</span>
+          <span><span class="dot" style="background:var(--red)"></span>Absent 3</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Weekly Attendance</h3>
+        <div class="hint">Present percentage per day</div>
+        <div class="chart">
+          <div class="bar"><div class="fill" style="height:88%"><span>92%</span></div><label>Mon</label></div>
+          <div class="bar"><div class="fill" style="height:83%"><span>87%</span></div><label>Tue</label></div>
+          <div class="bar"><div class="fill" style="height:91%"><span>95%</span></div><label>Wed</label></div>
+          <div class="bar"><div class="fill" style="height:79%"><span>83%</span></div><label>Thu</label></div>
+          <div class="bar"><div class="fill" style="height:81%"><span>85%</span></div><label>Fri</label></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Today's date
+  document.getElementById('today').textContent =
+    new Date().toLocaleDateString('en-PH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Mobile sidebar
+  document.getElementById('burger').addEventListener('click', function () {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // Live search on the attendance table
+  document.getElementById('search').addEventListener('input', function () {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#rows tr').forEach(function (tr) {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
