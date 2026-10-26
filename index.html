@@ -110,11 +110,11 @@
 <script>
   document.getElementById('teacherForm').addEventListener('submit', function(e){
     e.preventDefault();
-    window.location.href = 'dashboard.html';
+    window.location.href = '/teacher';
   });
   document.getElementById('studentForm').addEventListener('submit', function(e){
     e.preventDefault();
-    window.location.href = 'student.html?id=' + encodeURIComponent(document.getElementById('sPick').value);
+    window.location.href = '/student?id=' + encodeURIComponent(document.getElementById('sPick').value);
   });
 </script>
 </body>

@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/teacher",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/teacher/",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/student",
+      "destination": "/student.html"
+    },
+    {
+      "source": "/student/",
+      "destination": "/student.html"
+    }
+  ]
+}

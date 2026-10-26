@@ -51,7 +51,7 @@
     <div class="badge-ic"><i class="fa-solid fa-graduation-cap"></i></div>
     <div><b>Student Attendance Monitor</b><small>My Attendance</small></div>
     <div class="spacer"></div>
-    <a class="logout" href="index.html"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    <a class="logout" href="/"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
   </header>
   <main class="wrap" id="content"></main>
 <script>
@@ -75,7 +75,7 @@
       '<select id="pick">' + opts + '</select>' +
       '<button class="btn" id="go">View My Attendance</button></div>';
     document.getElementById('go').addEventListener('click', function(){
-      window.location.href = 'student.html?id=' + encodeURIComponent(document.getElementById('pick').value);
+      window.location.href = '/student?id=' + encodeURIComponent(document.getElementById('pick').value);
     });
   } else {
     var w = week[s.id];
