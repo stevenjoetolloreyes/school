@@ -15,6 +15,22 @@
     {
       "source": "/student/",
       "destination": "/student.html"
+    },
+    {
+      "source": "/login-teacher",
+      "destination": "/login-teacher.html"
+    },
+    {
+      "source": "/login-teacher/",
+      "destination": "/login-teacher.html"
+    },
+    {
+      "source": "/login-student",
+      "destination": "/login-student.html"
+    },
+    {
+      "source": "/login-student/",
+      "destination": "/login-student.html"
     }
   ]
 }

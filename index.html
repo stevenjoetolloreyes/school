@@ -55,8 +55,8 @@
       <div class="badge-ic"><i class="fa-solid fa-graduation-cap"></i></div>
       <div><b>Student Attendance Monitor</b><small>BSIT 1-A &middot; BSIT 1-B &middot; Sample demo</small></div>
       <nav class="nav-btns">
-        <a class="nav-btn student" href="#studentLogin"><i class="fa-solid fa-user-graduate"></i> Login as Student</a>
-        <a class="nav-btn teacher" href="#teacherLogin"><i class="fa-solid fa-chalkboard-user"></i> Login as Teacher</a>
+        <a class="nav-btn student" href="/login-student"><i class="fa-solid fa-user-graduate"></i> Login as Student</a>
+        <a class="nav-btn teacher" href="/login-teacher"><i class="fa-solid fa-chalkboard-user"></i> Login as Teacher</a>
       </nav>
     </div>
   </header>
@@ -71,132 +71,35 @@
         <div><b>2</b>Roles</div>
       </div>
     </section>
+    <div id="signedInBanner" style="display:none;background:#dbeafe;border:1px solid #bfdbfe;border-radius:12px;padding:14px;font-size:13px;margin-top:18px;text-align:center"></div>
     <section class="login-grid">
-      <div class="login-card teacher" id="teacherLogin">
+      <div class="login-card teacher">
         <div class="ic"><i class="fa-solid fa-chalkboard-user"></i></div>
-        <h2>Login as Teacher</h2>
-        <p>Real account, checked by Supabase Auth. Teachers manage students and attendance.</p>
-        <div id="signedInBanner" style="display:none;background:#dbeafe;border-radius:10px;padding:12px;font-size:13px;margin-bottom:12px"></div>
-        <form id="teacherForm">
-          <label for="tEmail">Email</label>
-          <input id="tEmail" type="email" placeholder="you@example.com" required>
-          <label for="tPass">Password</label>
-          <input id="tPass" type="password" placeholder="Your password" required>
-          <button class="btn btn-blue" type="submit" style="margin-top:14px">Login as Teacher</button>
-          <p id="tMsg" style="display:none;font-size:13px;margin-top:10px"></p>
-        </form>
-        <p style="font-size:13px;margin-top:12px">No account yet? <a href="#" id="tRegToggle" style="color:#2563eb;font-weight:700">Create teacher account</a></p>
-        <form id="teacherRegForm" style="display:none">
-          <label for="trName">Full name</label>
-          <input id="trName" type="text" placeholder="Full name" required>
-          <label for="trEmail">Email</label>
-          <input id="trEmail" type="email" placeholder="you@example.com" required>
-          <label for="trPass">Password</label>
-          <input id="trPass" type="password" placeholder="At least 6 characters" required>
-          <button class="btn btn-blue" type="submit" style="margin-top:14px">Create Teacher Account</button>
-          <p id="trMsg" style="display:none;font-size:13px;margin-top:10px"></p>
-        </form>
+        <h2>For Teachers</h2>
+        <p>Manage students, mark attendance, and view class reports on the Dashboard.</p>
+        <a class="btn btn-blue" href="/login-teacher">Login as Teacher</a>
       </div>
-      <div class="login-card student" id="studentLogin">
+      <div class="login-card student">
         <div class="ic"><i class="fa-solid fa-user-graduate"></i></div>
-        <h2>Login as Student</h2>
-        <p>Real account, checked by Supabase Auth. Students see only their own attendance.</p>
-        <form id="studentForm">
-          <label for="sEmail">Email</label>
-          <input id="sEmail" type="email" placeholder="you@example.com" required>
-          <label for="sPass">Password</label>
-          <input id="sPass" type="password" placeholder="Your password" required>
-          <button class="btn btn-green" type="submit" style="margin-top:14px">Login as Student</button>
-          <p id="sMsg" style="display:none;font-size:13px;margin-top:10px"></p>
-        </form>
-        <p style="font-size:13px;margin-top:12px">No account yet? <a href="#" id="sRegToggle" style="color:#16a34a;font-weight:700">Create student account</a></p>
-        <form id="studentRegForm" style="display:none">
-          <label for="srName">Full name</label>
-          <input id="srName" type="text" placeholder="Full name" required>
-          <label for="srId">Student ID</label>
-          <input id="srId" type="text" placeholder="Student ID" required>
-          <label for="srSection">Section</label>
-          <select id="srSection"><option>BSIT 1-A</option><option>BSIT 1-B</option></select>
-          <label for="srEmail">Email</label>
-          <input id="srEmail" type="email" placeholder="you@example.com" required>
-          <label for="srPass">Password</label>
-          <input id="srPass" type="password" placeholder="At least 6 characters" required>
-          <button class="btn btn-green" type="submit" style="margin-top:14px">Create Student Account</button>
-          <p id="srMsg" style="display:none;font-size:13px;margin-top:10px"></p>
-        </form>
+        <h2>For Students</h2>
+        <p>View your own attendance record only &mdash; no access to other students.</p>
+        <a class="btn btn-green" href="/login-student">Login as Student</a>
       </div>
     </section>
     <p class="note">Real accounts: passwords are checked by Supabase Auth, and students and attendance are saved in the database &mdash; not in this browser only.</p>
   </main>
 <script>
-
   (async function () {
     var c = supa();
-    if (!c) { showMsg('tMsg', 'Supabase is not configured yet — fill in config.js, then reload.', false); return; }
+    if (!c) return;
     var sess = (await c.auth.getSession()).data.session;
-    if (sess) {
-      var prof = await getProfile(c);
-      var b = document.getElementById('signedInBanner');
-      if (prof && prof.role === 'teacher') { b.style.display = 'block'; b.innerHTML = 'Already signed in as teacher — <a href="/teacher" style="font-weight:700;color:#1e40af">Continue to Dashboard</a>'; }
-      else if (prof && prof.role === 'student') { b.style.display = 'block'; b.innerHTML = 'Already signed in as student — <a href="/student" style="font-weight:700;color:#1e40af">Continue to My Attendance</a>'; }
-    }
-    function toggle(id, formId) {
-      document.getElementById(id).addEventListener('click', function (e) {
-        e.preventDefault();
-        var f = document.getElementById(formId);
-        f.style.display = f.style.display === 'none' || !f.style.display ? 'block' : 'none';
-      });
-    }
-    toggle('tRegToggle', 'teacherRegForm');
-    toggle('sRegToggle', 'studentRegForm');
-    async function afterAuth(role, msgId) {
-      var prof = await getProfile(c);
-      if (!prof || !prof.role) { showMsg(msgId, 'Account created but no profile found. Sign in again.', false); return; }
-      window.location.href = prof.role === 'teacher' ? '/teacher' : '/student';
-    }
-    document.getElementById('teacherForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var r = await c.auth.signInWithPassword({ email: document.getElementById('tEmail').value.trim(), password: document.getElementById('tPass').value });
-      if (r.error) { showMsg('tMsg', r.error.message, false); return; }
-      var prof = await getProfile(c);
-      if (prof.role !== 'teacher') { showMsg('tMsg', 'This account is not a teacher account.', false); await c.auth.signOut(); return; }
-      window.location.href = '/teacher';
-    });
-    document.getElementById('studentForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var r = await c.auth.signInWithPassword({ email: document.getElementById('sEmail').value.trim(), password: document.getElementById('sPass').value });
-      if (r.error) { showMsg('sMsg', r.error.message, false); return; }
-      var prof = await getProfile(c);
-      if (prof.role !== 'student') { showMsg('sMsg', 'This account is not a student account.', false); await c.auth.signOut(); return; }
-      window.location.href = '/student';
-    });
-    document.getElementById('teacherRegForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var email = document.getElementById('trEmail').value.trim();
-      var r = await c.auth.signUp({ email: email, password: document.getElementById('trPass').value });
-      if (r.error) { showMsg('trMsg', r.error.message, false); return; }
-      if (!r.data.user) { showMsg('trMsg', 'Check your email to confirm, then sign in.', true); return; }
-      var ins = await c.from('profiles').insert({ id: r.data.user.id, email: email, role: 'teacher' });
-      if (ins.error) { showMsg('trMsg', ins.error.message, false); return; }
-      window.location.href = '/teacher';
-    });
-    document.getElementById('studentRegForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var email = document.getElementById('srEmail').value.trim();
-      var sid = document.getElementById('srId').value.trim();
-      var r = await c.auth.signUp({ email: email, password: document.getElementById('srPass').value });
-      if (r.error) { showMsg('srMsg', r.error.message, false); return; }
-      if (!r.data.user) { showMsg('srMsg', 'Check your email to confirm, then sign in.', true); return; }
-      var pins = await c.from('profiles').insert({ id: r.data.user.id, email: email, role: 'student', student_id: sid });
-      if (pins.error) { showMsg('srMsg', pins.error.message, false); return; }
-      var sins = await c.from('students').upsert(
-        { student_id: sid, name: document.getElementById('srName').value.trim(), section: document.getElementById('srSection').value, status: 'Active' },
-        { onConflict: 'student_id' });
-      if (sins.error) { showMsg('srMsg', sins.error.message, false); return; }
-      window.location.href = '/student';
-    });
+    if (!sess) return;
+    var prof = await getProfile(c);
+    var b = document.getElementById('signedInBanner');
+    if (!b) return;
+    if (prof && prof.role === 'teacher') { b.style.display = 'block'; b.innerHTML = 'Already signed in as teacher — <a href="/teacher" style="font-weight:700;color:#1e40af">Continue to Dashboard</a>'; }
+    else if (prof && prof.role === 'student') { b.style.display = 'block'; b.innerHTML = 'Already signed in as student — <a href="/student" style="font-weight:700;color:#1e40af">Continue to My Attendance</a>'; }
   })();
-
 </script>
 </body>
 </html>
